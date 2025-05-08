@@ -12,6 +12,7 @@
             padding: 0;
             background: linear-gradient(135deg, #1a1a1a 0%, #2c2c2c 100%);
             color: #e6d5a8;
+            overflow-x: hidden;
         }
         .container {
             max-width: 1400px;
@@ -25,30 +26,52 @@
             justify-content: space-between;
             align-items: center;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
         .navbar a {
             color: #e6d5a8;
             text-decoration: none;
             font-size: 18px;
             font-weight: 400;
-            transition: color 0.3s;
+            margin: 0 15px;
+            transition: color 0.3s, transform 0.3s;
         }
         .navbar a:hover {
             color: #d4af37;
+            transform: scale(1.1);
         }
         .navbar .logo {
             font-family: 'Cinzel', serif;
             font-size: 28px;
             font-weight: 700;
+            letter-spacing: 2px;
         }
         .hero {
             background: url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1350&q=80') no-repeat center/cover;
             color: #e6d5a8;
-            padding: 100px;
+            padding: 120px;
             text-align: center;
             border-radius: 12px;
             margin-bottom: 40px;
             box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.7);
+            position: relative;
+            animation: fadeIn 2s ease-in-out;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 12px;
+        }
+        .hero h1, .hero p {
+            position: relative;
+            z-index: 1;
         }
         .hero h1 {
             font-family: 'Cinzel', serif;
@@ -68,6 +91,13 @@
             background: #2a2a2a;
             border-radius: 12px;
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            animation: slideUp 1s ease-in-out;
+        }
+        .form-container h2 {
+            font-family: 'Cinzel', serif;
+            color: #d4af37;
+            text-align: center;
+            margin-bottom: 20px;
         }
         .form-container input, .form-container select {
             width: 100%;
@@ -78,6 +108,11 @@
             font-size: 16px;
             background: #1a1a1a;
             color: #e6d5a8;
+            transition: border-color 0.3s;
+        }
+        .form-container input:focus, .form-container select:focus {
+            outline: none;
+            border-color: #d4af37;
         }
         .form-container button {
             width: 100%;
@@ -89,10 +124,11 @@
             cursor: pointer;
             font-size: 16px;
             font-weight: 600;
-            transition: background 0.3s;
+            transition: background 0.3s, transform 0.3s;
         }
         .form-container button:hover {
             background: #b8972f;
+            transform: translateY(-2px);
         }
         .dashboard {
             display: none;
@@ -102,6 +138,7 @@
             max-width: 1000px;
             border-radius: 12px;
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            animation: slideUp 1s ease-in-out;
         }
         .admin-dashboard {
             display: none;
@@ -111,6 +148,7 @@
             max-width: 1200px;
             border-radius: 12px;
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            animation: slideUp 1s ease-in-out;
         }
         .card {
             padding: 30px;
@@ -118,6 +156,10 @@
             border-radius: 10px;
             margin: 20px 0;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
         }
         .card h3 {
             font-family: 'Cinzel', serif;
@@ -150,16 +192,30 @@
             border-radius: 6px;
             cursor: pointer;
             font-weight: 600;
-            transition: background 0.3s;
+            margin: 5px;
+            transition: background 0.3s, transform 0.3s;
         }
         .btn-small:hover {
             background: #b8972f;
+            transform: translateY(-2px);
         }
         .btn-danger {
             background: #b71c1c;
         }
         .btn-danger:hover {
             background: #9b1616;
+        }
+        .btn-approve {
+            background: #2ecc71;
+        }
+        .btn-approve:hover {
+            background: #27ae60;
+        }
+        .btn-block {
+            background: #e67e22;
+        }
+        .btn-block:hover {
+            background: #d35400;
         }
         .contact-admin {
             display: none;
@@ -169,11 +225,23 @@
             margin-top: 20px;
             text-align: center;
             color: #e6d5a8;
+            border: 1px solid #d4af37;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
         @media (max-width: 768px) {
+            .hero { padding: 60px; }
             .hero h1 { font-size: 32px; }
             .form-container { max-width: 90%; }
             .container { padding: 20px; }
+            .navbar { flex-direction: column; gap: 10px; }
+            .navbar a { margin: 5px 0; }
         }
     </style>
 </head>
@@ -209,18 +277,25 @@
         <div class="card">
             <h3>Account Overview</h3>
             <p>Balance: $<span id="user-balance">0</span></p>
+            <p>Status: <span id="user-status"></span></p>
         </div>
         <div class="card">
             <h3>Deposit</h3>
             <input type="number" id="deposit-amount" placeholder="Amount" min="1">
             <button onclick="deposit()">Deposit</button>
+            <div class="contact-admin" id="deposit-contact">
+                <p>Please contact the admin at <strong>admin@elitebank.com</strong> for deposit instructions. Once confirmed, click below to proceed.</p>
+                <button class="btn-small" onclick="confirmDeposit()">Confirm Deposit</button>
+            </div>
         </div>
         <div class="card">
             <h3>Withdraw</h3>
             <input type="number" id="withdraw-amount" placeholder="Amount" min="1">
             <button onclick="withdraw()">Withdraw</button>
             <div class="contact-admin" id="withdraw-contact">
-                <p>Fee: $<span id="withdraw-fee"></span></p>
+                <p>Withdrawal Amount: $<span id="withdraw-amount-display"></span></p>
+                <p>Fee (1%): $<span id="withdraw-fee"></span></p>
+                <p>Total Deduction: $<span id="withdraw-total"></span></p>
                 <p>Please contact the admin at <strong>admin@elitebank.com</strong> to arrange payment for the withdrawal fee. Once confirmed, click below to proceed.</p>
                 <button class="btn-small" onclick="confirmWithdrawal()">Confirm Withdrawal</button>
             </div>
@@ -235,7 +310,9 @@
             </select>
             <button onclick="transfer()">Send</button>
             <div class="contact-admin" id="transfer-contact">
-                <p>Fee: $<span id="transfer-fee"></span></p>
+                <p>Transfer Amount: $<span id="transfer-amount-display"></span></p>
+                <p>Fee (1%): $<span id="transfer-fee"></span></p>
+                <p>Total Deduction: $<span id="transfer-total"></span></p>
                 <p>Please contact the admin at <strong>admin@elitebank.com</strong> to arrange payment for the transfer fee. Once confirmed, click below to proceed.</p>
                 <button class="btn-small" onclick="confirmTransfer()">Confirm Transfer</button>
             </div>
@@ -255,70 +332,24 @@
             </table>
         </div>
     </div>
-    <div class="admin-dashboard" id="admin-dashboard">
-        <h2 style="font-family: 'Cinzel', serif; color: #d4af37;">Admin Dashboard</h2>
-        <div class="card">
-            <h3>Manage Users</h3>
-            <table id="user-table">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Balance</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
-        <div class="card">
-            <h3>Add Balance</h3>
-            <input type="email" id="add-balance-email" placeholder="User Email">
-            <input type="number" id="add-balance-amount" placeholder="Amount" min="1">
-            <button onclick="addBalance()">Add Balance</button>
-        </div>
-        <div class="card">
-            <h3>Deduct Balance</h3>
-            <input type="email" id="deduct-balance-email" placeholder="User Email">
-            <input type="number" id="deduct-balance-amount" placeholder="Amount" min="1">
-            <button onclick="deductBalance()">Deduct Balance</button>
-        </div>
-        <div class="card">
-            <h3>Transaction Logs</h3>
-            <table id="admin-transaction-table">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>User</th>
-                        <th>Type</th>
-                        <th>Amount</th>
-                        <th>Details</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
-    </div>
 
     <script>
         const apiUrl = 'https://neobank-szj0.onrender.com/api';
         let token = null;
-        let pendingWithdrawalAmount = 0;
-        let pendingTransfer = { toEmail: '', amount: 0, type: '' };
+        let pendingDepositAmount = 0;
+        let pendingWithdrawal = { amount: 0, totalDeduction: 0 };
+        let pendingTransfer = { toEmail: '', amount: 0, type: '', totalDeduction: 0 };
 
         function showLogin() {
             document.getElementById('login-form').style.display = 'block';
             document.getElementById('register-form').style.display = 'none';
             document.getElementById('user-dashboard').style.display = 'none';
-            document.getElementById('admin-dashboard').style.display = 'none';
         }
 
         function showRegister() {
             document.getElementById('login-form').style.display = 'none';
             document.getElementById('register-form').style.display = 'block';
             document.getElementById('user-dashboard').style.display = 'none';
-            document.getElementById('admin-dashboard').style.display = 'none';
         }
 
         async function register() {
@@ -333,7 +364,7 @@
                 });
                 const data = await response.json();
                 if (data.token) {
-                    alert('Registration successful! Please login.');
+                    alert('Registration successful! Please wait for admin approval.');
                     showLogin();
                 } else {
                     alert(data.message);
@@ -356,8 +387,9 @@
                 if (data.token) {
                     token = data.token;
                     document.getElementById('logout').style.display = 'inline';
-                    if (data.role === 'admin') {
-                        await loadAdminDashboard();
+                    if (data.user.role === 'admin') {
+                        localStorage.setItem('adminToken', token);
+                        window.location.href = '/admin.html';
                     } else {
                         await loadUserDashboard(data.user);
                     }
@@ -375,6 +407,7 @@
             document.getElementById('user-dashboard').style.display = 'block';
             document.getElementById('user-name').textContent = user.name;
             document.getElementById('user-balance').textContent = user.balance.toFixed(2);
+            document.getElementById('user-status').textContent = user.status;
             await loadTransactionHistory();
         }
 
@@ -386,6 +419,10 @@
                 const transactions = await response.json();
                 const tbody = document.querySelector('#transaction-table tbody');
                 tbody.innerHTML = '';
+                if (!transactions || transactions.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4">No transactions yet.</td></tr>';
+                    return;
+                }
                 transactions.forEach(tx => {
                     const row = `<tr>
                         <td>${new Date(tx.date).toLocaleString()}</td>
@@ -414,13 +451,36 @@
                 });
                 const data = await response.json();
                 if (data.success) {
-                    alert('Deposit successful!');
+                    pendingDepositAmount = amount;
+                    document.getElementById('deposit-contact').style.display = 'block';
+                } else {
+                    alert(data.message);
+                }
+            } catch (error) {
+                alert('Error initiating deposit.');
+            }
+        }
+
+        async function confirmDeposit() {
+            try {
+                const response = await fetch(`${apiUrl}/confirm-deposit`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ amount: pendingDepositAmount })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    alert('Deposit processed successfully!');
+                    document.getElementById('deposit-contact').style.display = 'none';
                     await refreshUserDashboard();
                 } else {
                     alert(data.message);
                 }
             } catch (error) {
-                alert('Error processing deposit.');
+                alert('Error confirming deposit.');
             }
         }
 
@@ -438,8 +498,10 @@
                 });
                 const data = await response.json();
                 if (data.success) {
-                    pendingWithdrawalAmount = amount;
+                    pendingWithdrawal = { amount, totalDeduction: data.totalDeduction };
+                    document.getElementById('withdraw-amount-display').textContent = amount.toFixed(2);
                     document.getElementById('withdraw-fee').textContent = data.fee.toFixed(2);
+                    document.getElementById('withdraw-total').textContent = data.totalDeduction.toFixed(2);
                     document.getElementById('withdraw-contact').style.display = 'block';
                 } else {
                     alert(data.message);
@@ -457,7 +519,7 @@
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
-                    body: JSON.stringify({ amount: pendingWithdrawalAmount })
+                    body: JSON.stringify(pendingWithdrawal)
                 });
                 const data = await response.json();
                 if (data.success) {
@@ -488,8 +550,10 @@
                 });
                 const data = await response.json();
                 if (data.success) {
-                    pendingTransfer = { toEmail, amount, type };
+                    pendingTransfer = { toEmail, amount, type, totalDeduction: data.totalDeduction };
+                    document.getElementById('transfer-amount-display').textContent = amount.toFixed(2);
                     document.getElementById('transfer-fee').textContent = data.fee.toFixed(2);
+                    document.getElementById('transfer-total').textContent = data.totalDeduction.toFixed(2);
                     document.getElementById('transfer-contact').style.display = 'block';
                 } else {
                     alert(data.message);
@@ -534,156 +598,6 @@
             }
         }
 
-        async function loadAdminDashboard() {
-            document.getElementById('login-form').style.display = 'none';
-            document.getElementById('register-form').style.display = 'none';
-            document.getElementById('admin-dashboard').style.display = 'block';
-            await Promise.all([loadUsers(), loadAdminTransactions()]);
-        }
-
-        async function loadUsers() {
-            try {
-                const response = await fetch(`${apiUrl}/users`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const users = await response.json();
-                const tbody = document.querySelector('#user-table tbody');
-                tbody.innerHTML = '';
-                users.forEach(user => {
-                    const row = `<tr>
-                        <td>${user.name}</td>
-                        <td>${user.email}</td>
-                        <td>$${user.balance.toFixed(2)}</td>
-                        <td>${user.status}</td>
-                        <td>
-                            <button class="btn-small" onclick="toggleUserStatus('${user.email}', '${user.status}')">
-                                ${user.status === 'active' ? 'Suspend' : 'Activate'}
-                            </button>
-                            <button class="btn-small btn-danger" onclick="deleteUser('${user.email}')">Delete</button>
-                        </td>
-                    </tr>`;
-                    tbody.innerHTML += row;
-                });
-            } catch (error) {
-                alert('Error loading users.');
-            }
-        }
-
-        async function loadAdminTransactions() {
-            try {
-                const response = await fetch(`${apiUrl}/admin/transactions`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const transactions = await response.json();
-                const tbody = document.querySelector('#admin-transaction-table tbody');
-                tbody.innerHTML = '';
-                transactions.forEach(tx => {
-                    const row = `<tr>
-                        <td>${new Date(tx.date).toLocaleString()}</td>
-                        <td>${tx.userEmail}</td>
-                        <td>${tx.type}</td>
-                        <td>$${tx.amount.toFixed(2)}</td>
-                        <td>${tx.details}</td>
-                    </tr>`;
-                    tbody.innerHTML += row;
-                });
-            } catch (error) {
-                alert('Error loading transaction logs.');
-            }
-        }
-
-        async function toggleUserStatus(email, currentStatus) {
-            const newStatus = currentStatus === 'active' ? 'suspended' : 'active';
-            try {
-                const response = await fetch(`${apiUrl}/users/${email}/status`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ status: newStatus })
-                });
-                const data = await response.json();
-                if (data.success) {
-                    alert(`User ${newStatus} successfully!`);
-                    await loadUsers();
-                } else {
-                    alert(data.message);
-                }
-            } catch (error) {
-                alert('Error updating user status.');
-            }
-        }
-
-        async function deleteUser(email) {
-            if (!confirm('Are you sure you want to delete this user?')) return;
-            try {
-                const response = await fetch(`${apiUrl}/users/${email}`, {
-                    method: 'DELETE',
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const data = await response.json();
-                if (data.success) {
-                    alert('User deleted successfully!');
-                    await loadUsers();
-                } else {
-                    alert(data.message);
-                }
-            } catch (error) {
-                alert('Error deleting user.');
-            }
-        }
-
-        async function addBalance() {
-            const email = document.getElementById('add-balance-email').value;
-            const amount = parseFloat(document.getElementById('add-balance-amount').value);
-            if (!email || !amount || amount <= 0) return alert('Invalid email or amount.');
-            try {
-                const response = await fetch(`${apiUrl}/admin/add-balance`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ email, amount })
-                });
-                const data = await response.json();
-                if (data.success) {
-                    alert('Balance added successfully!');
-                    await loadUsers();
-                } else {
-                    alert(data.message);
-                }
-            } catch (error) {
-                alert('Error adding balance.');
-            }
-        }
-
-        async function deductBalance() {
-            const email = document.getElementById('deduct-balance-email').value;
-            const amount = parseFloat(document.getElementById('deduct-balance-amount').value);
-            if (!email || !amount || amount <= 0) return alert('Invalid email or amount.');
-            try {
-                const response = await fetch(`${apiUrl}/admin/deduct-balance`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ email, amount })
-                });
-                const data = await response.json();
-                if (data.success) {
-                    alert('Balance deducted successfully!');
-                    await loadUsers();
-                } else {
-                    alert(data.message);
-                }
-            } catch (error) {
-                alert('Error deducting balance.');
-            }
-        }
-
         function logout() {
             token = null;
             document.getElementById('logout').style.display = 'none';
@@ -692,15 +606,3 @@
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
